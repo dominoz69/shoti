@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shoti</title>
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --card-bg: #f0f0f0;
+      --button-bg: #4a90e2;
+      --button-text: #ffffff;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --accent-color: #4a90e2;
+      --border-radius: 12px;
+      --transition-speed: 0.35s;
+    }
+
+    .dark-mode {
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --card-bg: #1e1e1e;
+      --button-bg: #2d6bc9;
+      --button-text: #ffffff;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --accent-color: #5c9bff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 800;
+      font-size: 3rem;
+      background: linear-gradient(45deg, var(--accent-color), #6366f1);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      opacity: 0;
+      transform: translateY(-20px) scale(0.95);
+      animation: popIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      position: relative;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-color), #6366f1);
+      animation: lineExpand 1s ease forwards 0.5s;
+    }
+
+    .video-container {
+      position: relative;
+      margin: 20px 0;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      background-color: var(--card-bg);
+      transform: translateY(40px) scale(0.98);
+      opacity: 0;
+      animation: slideUpFade 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards 0.3s;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .video-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .shoti-player {
+      width: 100%;
+      max-height: 80vh;
+      display: block;
+      background-color: #000;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      padding: 18px;
+      gap: 10px;
+    }
+
+    .button {
+      background: linear-gradient(135deg, var(--button-bg), #2d6bc9);
+      color: var(--button-text);
+      border: none;
+      padding: 14px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: all 0.5s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-3px);
+      filter: brightness(1.1);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .button:hover::before {
+      left: 100%;
+    }
+
+    .button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .button svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.3s ease;
+    }
+
+    .button:hover svg {
+      transform: rotate(15deg) scale(1.1);
+    }
+
+    .user-info {
+      padding: 18px;
+      border-top: 1px solid rgba(128, 128, 128, 0.15);
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.5s ease;
+    }
+
+    .user-info.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .user-info h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 1.4rem;
+      background: linear-gradient(45deg, var(--accent-color), #6366f1);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      transform: translateX(-10px);
+      opacity: 0;
+      animation: slideInRight 0.5s ease forwards;
+    }
+
+    .user-info p {
+      margin: 8px 0;
+      line-height: 1.5;
+      transform: translateX(-10px);
+      opacity: 0;
+      animation: slideInRight 0.5s ease forwards;
+    }
+
+    .user-info p:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .user-info p:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(128, 128, 128, 0.1);
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    .theme-toggle::before {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      background: var(--accent-color);
+      border-radius: 50%;
+      transition: all 0.5s ease;
+      opacity: 0.3;
+    }
+
+    .theme-toggle:hover {
+      transform: rotate(15deg);
+      background: rgba(128, 128, 128, 0.2);
+    }
+
+    .theme-toggle:hover::before {
+      width: 100%;
+      height: 100%;
+    }
+
+    .theme-toggle svg {
+      transition: transform 0.5s ease;
+      z-index: 1;
+    }
+
+    .theme-toggle:hover svg {
+      transform: rotate(-15deg) scale(1.2);
+    }
+
+    .loader {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .loader-spin {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(128, 128, 128, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--accent-color);
+      animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--accent-color);
+      transform: scale(0);
+      opacity: 0.4;
+      animation: ripple 0.6s linear;
+    }
+
+    @keyframes ripple {
+      to {
+        transform: scale(2.5);
+        opacity: 0;
+      }
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      60% {
+        transform: translateY(5px) scale(1.05);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes lineExpand {
+      0% {
+        width: 0;
+      }
+      100% {
+        width: 100px;
+      }
+    }
+
+    @keyframes slideUpFade {
+      from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(720deg);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    .highlight {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .highlight::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--accent-color);
+      opacity: 0.3;
+      animation: fadeOut 1s ease forwards;
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 0.3;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+
+    .floating {
+      animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+    </svg>
+  </button>
+
+  <div class="container">
+    <h1 class="floating">Shoti</h1>
+    <div class="video-container">
+      <video id="shotiPlayer" class="shoti-player" controls autoplay loop></video>
+      <div class="controls">
+        <button class="button" id="newShoti">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+            <path d="M21 3v5h-5"></path>
+          </svg>
+          New Video
+        </button>
+        <button class="button" id="downloadBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download
+        </button>
+      </div>
+      <div class="user-info" id="userInfo">
+        <h3 id="videoTitle"></h3>
+        <p>Creator: <span id="creator"></span></p>
+        <p>Bio: <span id="signature"></span></p>
+      </div>
+    </div>
+    <div class="loader" id="loader">
+      <div class="loader-spin"></div>
+    </div>
+  </div>
+
+  <script>
+    const player = document.getElementById('shotiPlayer');
+    const newShotiBtn = document.getElementById('newShoti');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const videoTitle = document.getElementById('videoTitle');
+    const creator = document.getElementById('creator');
+    const signature = document.getElementById('signature');
+    const loader = document.getElementById('loader');
+    const themeToggle = document.getElementById('themeToggle');
+    const videoContainer = document.querySelector('.video-container');
+    const userInfo = document.getElementById('userInfo');
+
+    let currentVideoUrl = '';
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+
+      const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>`;
+
+      const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>`;
+
+      themeToggle.innerHTML = document.body.classList.contains('dark-mode') ? sunIcon : moonIcon;
+
+      createRipple(themeToggle, {clientX: themeToggle.offsetLeft + themeToggle.offsetWidth/2, clientY: themeToggle.offsetTop + themeToggle.offsetHeight/2});
+    }
+
+    function createRipple(button, event) {
+      const circle = document.createElement('span');
+      const diameter = Math.max(button.clientWidth, button.clientHeight);
+
+      circle.style.width = circle.style.height = `${diameter}px`;
+      circle.style.left = `${event.clientX - button.getBoundingClientRect().left - diameter/2}px`;
+      circle.style.top = `${event.clientY - button.getBoundingClientRect().top - diameter/2}px`;
+
+      circle.classList.add('ripple');
+
+      const ripple = button.querySelector('.ripple');
+      if (ripple) {
+        ripple.remove();
+      }
+
+      button.appendChild(circle);
+    }
+
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+      themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>`;
+    } else {
+      themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>`;
+    }
+
+    themeToggle.addEventListener('click', toggleTheme);
+
+    async function fetchShotiVideo() {
+      try {
+        loader.style.display = 'block';
+        videoContainer.classList.add('pulse');
+        player.style.opacity = '0';
+        userInfo.classList.remove('visible');
+
+        const response = await fetch('/api/get-shoti');
+        const data = await response.json();
+
+        if (data.code === 200 && data.result) {
+          currentVideoUrl = data.result.content;
+          player.src = currentVideoUrl;
+
+          setTimeout(() => {
+            player.style.opacity = '1';
+            videoContainer.classList.remove('pulse');
+
+            setTimeout(() => {
+              videoTitle.textContent = data.result.title || 'No Title';
+              creator.textContent = data.result.user.nickname || data.result.user.username || 'Unknown';
+              signature.textContent = data.result.user.signature || 'No bio available';
+
+              userInfo.classList.add('visible');
+              userInfo.classList.add('highlight');
+
+              setTimeout(() => {
+                userInfo.classList.remove('highlight');
+              }, 1000);
+            }, 500);
+          }, 500);
+        } else {
+          videoContainer.classList.add('error');
+        }
+      } catch (error) {
+        console.error('Error fetching video:', error);
+      } finally {
+        loader.style.display = 'none';
+      }
+    }
+
+    function downloadVideo() {
+      if (!currentVideoUrl) return;
+
+      createRipple(downloadBtn, event);
+
+      const a = document.createElement('a');
+      a.href = currentVideoUrl;
+      a.download = 'shoti-video.mp4';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    player.addEventListener('loadeddata', () => {
+      player.style.opacity = '1';
+    });
+
+    newShotiBtn.addEventListener('click', (event) => {
+      createRipple(newShotiBtn, event);
+      videoContainer.classList.add('highlight');
+      setTimeout(() => {
+        videoContainer.classList.remove('highlight');
+        fetchShotiVideo();
+      }, 300);
+    });
+
+    downloadBtn.addEventListener('click', function(event) {
+      downloadVideo();
+    });
+
+    document.querySelectorAll('.button').forEach(button => {
+      button.addEventListener('click', function(e) {
+        createRipple(this, e);
+      });
+    });
+
+    window.onload = fetchShotiVideo;
+  </script>
+</body>
+</html>
