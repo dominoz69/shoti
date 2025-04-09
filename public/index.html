@@ -48,7 +48,7 @@
       text-align: center;
       margin-bottom: 30px;
       font-weight: 800;
-      font-size: 3rem;
+      font-size: 2.5rem;
       background: linear-gradient(45deg, var(--accent-color), #6366f1);
       background-clip: text;
       -webkit-background-clip: text;
@@ -57,6 +57,21 @@
       transform: translateY(-20px) scale(0.95);
       animation: popIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
       position: relative;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+      }
+
+      body {
+        padding: 10px;
+      }
+
+      .container {
+        padding: 0 10px;
+      }
     }
 
     h1::after {
@@ -102,6 +117,17 @@
       justify-content: space-between;
       padding: 18px;
       gap: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .controls {
+        flex-direction: column;
+        padding: 12px;
+      }
+      
+      .button {
+        width: 100%;
+      }
     }
 
     .button {
@@ -200,6 +226,16 @@
       animation-delay: 0.2s;
     }
 
+    @media (max-width: 480px) {
+      .user-info {
+        padding: 15px;
+      }
+      
+      .user-info h3 {
+        font-size: 1.2rem;
+      }
+    }
+
     .theme-toggle {
       position: fixed;
       top: 20px;
@@ -216,6 +252,15 @@
       transition: all 0.3s ease;
       z-index: 10;
       overflow: hidden;
+    }
+
+    @media (max-width: 480px) {
+      .theme-toggle {
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+      }
     }
 
     .theme-toggle::before {
@@ -250,15 +295,18 @@
 
     .loader {
       display: none;
-      text-align: center;
-      padding: 40px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
     }
 
     .loader-spin {
       display: inline-block;
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(128, 128, 128, 0.3);
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(128, 128, 128, 0.3);
       border-radius: 50%;
       border-top-color: var(--accent-color);
       animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
@@ -400,7 +448,10 @@
   <div class="container">
     <h1 class="floating">Shoti</h1>
     <div class="video-container">
-      <video id="shotiPlayer" class="shoti-player" controls autoplay loop></video>
+      <video id="shotiPlayer" class="shoti-player" controls autoplay loop playsinline></video>
+      <div class="loader" id="loader">
+        <div class="loader-spin"></div>
+      </div>
       <div class="controls">
         <button class="button" id="newShoti">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -423,9 +474,6 @@
         <p>Creator: <span id="creator"></span></p>
         <p>Bio: <span id="signature"></span></p>
       </div>
-    </div>
-    <div class="loader" id="loader">
-      <div class="loader-spin"></div>
     </div>
   </div>
 
